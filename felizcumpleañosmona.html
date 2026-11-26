@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pastel de Cumpleaños</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sniglet:wght@400;800&family=Caveat:wght@500;700&family=Nunito:wght@400;600;700&display=swap">
+<style>
+  /* Layout: una sola escena centrada — pastel arriba, nota escrita a mano que aparece al apagar las velas */
+  :root {
+    --bg: #f3ebe1;
+    --bg2: #e9dccc;
+    --ink: #4a3a33;
+    --muted: #8c7a6e;
+    --frost: #fffaf4;
+    --sponge: #f4c6d0;
+    --sponge-dark: #e9a7b6;
+    --plate: #fffdf9;
+    --accent: #c45a7c;
+    --flame: #ffb627;
+    --paper: #fffaf3;
+    --shadow: rgba(110, 80, 60, .18);
+    --f-display: "Sniglet", "Trebuchet MS", system-ui, sans-serif;
+    --f-hand: "Caveat", "Segoe Script", cursive;
+    --f-body: "Nunito", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #26201d; --bg2: #352c27; --ink: #f3e8df; --muted: #bfae9f;
+      --frost: #fff4ec; --sponge: #e7b4c0; --sponge-dark: #cf8fa1; --plate: #3d3430;
+      --accent: #f09bb5; --paper: #332b27; --shadow: rgba(0,0,0,.45); color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #26201d; --bg2: #352c27; --ink: #f3e8df; --muted: #bfae9f;
+    --frost: #fff4ec; --sponge: #e7b4c0; --sponge-dark: #cf8fa1; --plate: #3d3430;
+    --accent: #f09bb5; --paper: #332b27; --shadow: rgba(0,0,0,.45); color-scheme: dark;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { min-height: 100%; }
+  body { margin: 0; }
+  body {
+    background: radial-gradient(ellipse at 50% 0%, var(--bg2), var(--bg) 70%) fixed, var(--bg);
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: 16px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: clamp(24px, 6vh, 64px) 48px;
+    overflow-x: hidden;
+  }
+  main { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
+  h1 {
+    font-family: var(--f-display); font-weight: 800;
+    font-size: clamp(2rem, 8vw, 3rem); line-height: 1.05; margin: 0;
+    text-wrap: balance; color: var(--accent);
+  }
+  h1 .name { display: block; color: var(--ink); }
+  .hint { margin: 0; color: var(--muted); font-weight: 600; min-height: 1.5em; font-size: clamp(.95rem, 2.6vw, 1.1rem); }
+
+  /* --- Pastel --- */
+  .cake-wrap { position: relative; width: clamp(230px, 80vw, 400px); aspect-ratio: 1 / 1; max-width: 100%; container-type: inline-size; }
+  .plate {
+    position: absolute; bottom: 4%; left: 2%; right: 2%; height: 9%;
+    background: var(--plate); border-radius: 50%;
+    box-shadow: 0 10px 24px var(--shadow);
+  }
+  .tier { position: absolute; left: 50%; transform: translateX(-50%); border-radius: 4.5cqw 4.5cqw 3cqw 3cqw; overflow: hidden;
+    background: repeating-linear-gradient(90deg, var(--sponge) 0 7cqw, var(--sponge-dark) 7cqw 8.2cqw); }
+  .tier.bottom { bottom: 9%; width: 82%; height: 30%; }
+  .tier.top { bottom: 38%; width: 60%; height: 24%; }
+  .tier::before { /* glaseado que chorrea */
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 38%;
+    background:
+      radial-gradient(circle at 10% 100%, var(--frost) 10px, transparent 11px),
+      radial-gradient(circle at 30% 100%, var(--frost) 7px, transparent 8px),
+      radial-gradient(circle at 52% 100%, var(--frost) 12px, transparent 13px),
+      radial-gradient(circle at 74% 100%, var(--frost) 8px, transparent 9px),
+      radial-gradient(circle at 92% 100%, var(--frost) 11px, transparent 12px),
+      linear-gradient(var(--frost), var(--frost)) top / 100% 70% no-repeat;
+  }
+  .sprinkles { position: absolute; inset: 45% 6% 10%; }
+  .sprinkles i { position: absolute; width: 1.3cqw; height: 3.2cqw; border-radius: 1cqw; }
+
+  .candles { position: absolute; bottom: 62%; left: 50%; transform: translateX(-50%); width: 60%; display: flex; justify-content: space-evenly; align-items: flex-end; }
+  .candle {
+    position: relative; width: 4.4cqw; min-width: 11px; height: 16cqw; border: 0; padding: 0; cursor: pointer;
+    background: repeating-linear-gradient(135deg, var(--frost) 0 1.8cqw, var(--sponge-dark) 1.8cqw 3.4cqw);
+    border-radius: 1.2cqw 1.2cqw .6cqw .6cqw;
+    touch-action: manipulation;
+  }
+  .candle:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+  .candle::before { /* mecha */
+    content: ""; position: absolute; top: -8px; left: 50%; width: 2px; height: 8px; margin-left: -1px; background: #4a3428;
+  }
+  .flame {
+    position: absolute; bottom: calc(100% + 6px); left: 50%; width: max(11px, 4.4cqw); height: max(19px, 7.5cqw); transform: translateX(-50%);
+    background: radial-gradient(ellipse at 50% 70%, #fff 0 18%, var(--flame) 40%, #ff6b2c 75%, transparent 76%);
+    border-radius: 50% 50% 45% 45% / 65% 65% 35% 35%;
+    transform-origin: 50% 100%;
+    animation: flicker .18s infinite alternate ease-in-out;
+    filter: drop-shadow(0 0 8px rgba(255,182,39,.8));
+    pointer-events: none;
+  }
+  .candle.out .flame { animation: blowout .35s forwards ease-out; }
+  .smoke { position: absolute; bottom: calc(100% + 8px); left: 50%; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%;
+    background: var(--muted); opacity: 0; pointer-events: none; }
+  .candle.out .smoke { animation: smoke 1.2s .2s ease-out forwards; }
+  @keyframes flicker { from { transform: translateX(-50%) scaleY(1) rotate(-2deg); } to { transform: translateX(-50%) scaleY(1.12) rotate(2deg); } }
+  @keyframes blowout { to { transform: translateX(-50%) scale(0) translateY(-6px); opacity: 0; } }
+  @keyframes smoke { 0% { opacity: .5; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-40px) translateX(6px) scale(3); } }
+
+  /* --- Nota --- */
+  .note {
+    background: var(--paper); color: var(--ink);
+    width: 100%; max-width: 480px; border-radius: 6px;
+    padding: clamp(20px, 5vw, 32px) clamp(18px, 5vw, 32px) clamp(18px, 4vw, 26px);
+    box-sizing: border-box;
+    box-shadow: 0 14px 34px var(--shadow);
+    transform: rotate(-1.2deg);
+    font-family: var(--f-hand); font-size: clamp(1.3rem, 4.6vw, 1.75rem); line-height: 1.35; text-align: left;
+    background-image: repeating-linear-gradient(transparent 0 2.1rem, color-mix(in srgb, var(--accent) 14%, transparent) 2.1rem calc(2.1rem + 1px));
+  }
+  .note p { margin: 0 0 .6em; }
+  .note .sign { text-align: right; font-weight: 700; color: var(--accent); margin: 0; }
+  .note.reveal { animation: rise .8s cubic-bezier(.2,.9,.3,1.2) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(30px) rotate(3deg) scale(.95); } to { opacity: 1; transform: rotate(-1.2deg); } }
+
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  button.btn {
+    font-family: var(--f-body); font-weight: 700; font-size: 1rem;
+    padding: 12px 20px; border-radius: 999px; cursor: pointer;
+    border: 2px solid var(--accent); background: transparent; color: var(--accent);
+  }
+  button.btn.primary { background: var(--accent); color: var(--paper); }
+  button.btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+  canvas#confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; }
+
+  /* --- Pantalla de entrada --- */
+  .intro {
+    position: fixed; inset: 0; z-index: 30;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+    padding: 24px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px));
+    background: radial-gradient(ellipse at 50% 30%, var(--bg2), var(--bg) 75%), var(--bg);
+    text-align: center; cursor: pointer; border: 0; width: 100%; color: var(--ink); font: inherit;
+    transition: opacity .6s ease, visibility .6s;
+  }
+  .intro.gone { opacity: 0; visibility: hidden; pointer-events: none; }
+  .gift { width: clamp(110px, 32vw, 160px); aspect-ratio: 1; position: relative; animation: wiggle 2.4s infinite ease-in-out; }
+  .gift .box { position: absolute; inset: 30% 6% 0; background: var(--sponge); border-radius: 8px; box-shadow: 0 12px 28px var(--shadow); }
+  .gift .lid { position: absolute; left: 0; right: 0; top: 18%; height: 18%; background: var(--sponge-dark); border-radius: 6px; }
+  .gift .rib-v { position: absolute; left: 44%; width: 12%; top: 18%; bottom: 0; background: var(--frost); }
+  .gift .bow { position: absolute; left: 50%; top: 2%; width: 46%; height: 22%; transform: translateX(-50%);
+    background: radial-gradient(ellipse at 25% 60%, var(--accent) 0 38%, transparent 40%), radial-gradient(ellipse at 75% 60%, var(--accent) 0 38%, transparent 40%); }
+  @keyframes wiggle { 0%, 70%, 100% { transform: rotate(0); } 75% { transform: rotate(-6deg); } 82% { transform: rotate(6deg); } 89% { transform: rotate(-3deg); } }
+  .intro h2 { font-family: var(--f-display); font-weight: 800; color: var(--accent); font-size: clamp(1.7rem, 7vw, 2.4rem); margin: 0; text-wrap: balance; }
+  .intro p { margin: 0; color: var(--muted); font-weight: 600; }
+  .intro:focus-visible { outline: 3px solid var(--accent); outline-offset: -6px; }
+
+  /* --- Botón de música --- */
+  .music {
+    position: fixed; z-index: 25;
+    right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    width: 52px; height: 52px; border-radius: 50%; cursor: pointer;
+    border: 2px solid var(--accent); background: var(--paper); color: var(--accent);
+    display: grid; place-items: center; box-shadow: 0 8px 20px var(--shadow);
+    display: none;
+  }
+  .music svg { width: 22px; height: 22px; fill: currentColor; }
+  .music:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+  .music.playing { animation: pulse 1.6s infinite ease-in-out; }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 22%, transparent), 0 8px 20px var(--shadow); } }
+
+  @media (max-width: 380px) {
+    .note { transform: none; }
+    .actions .btn { width: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .flame { animation: none; }
+    .note.reveal { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confetti" aria-hidden="true"></canvas>
+<button class="intro" id="intro" type="button" aria-label="Abrir tu regalo">
+  <div class="gift" aria-hidden="true"><div class="box"></div><div class="rib-v"></div><div class="lid"></div><div class="bow"></div></div>
+  <h2>Tienes un regalo</h2>
+  <p>Sube el volumen y toca para abrirlo</p>
+</button>
+<button class="music" id="music" type="button" aria-label="Pausar música" hidden>
+  <svg id="icon-pause" viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+  <svg id="icon-play" viewBox="0 0 24 24" hidden><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+</button>
+<!-- Canción: pon tu archivo de audio junto a esta página con el nombre "cancion.mp3".
+     Si no existe, suena un "Feliz cumpleaños" en caja musical. -->
+<audio id="song" src="cancion.mp3" preload="auto" loop></audio>
+<main>
+  <h1>¡Feliz cumpleaños! <span class="name" id="nombre">Mi amor</span></h1>
+  <p class="hint" id="hint">Pide un deseo y toca cada vela para apagarla</p>
+
+  <div class="cake-wrap" aria-label="Pastel de cumpleaños con velas">
+    <div class="plate"></div>
+    <div class="tier bottom"><div class="sprinkles" id="spr1"></div></div>
+    <div class="tier top"><div class="sprinkles" id="spr2"></div></div>
+    <div class="candles" id="candles"></div>
+  </div>
+
+  <article class="note" id="note" hidden>
+    <p>Hoy el mundo celebra que existes, y yo quería celebrarlo a mi manera: escribiéndote en un pastel que nunca se acabará.</p>
+    <p>Gracias por cada sonrisa, cada conversación y cada momento que haces más bonito sin darte cuenta. Ojalá este año te traiga todo lo que deseaste al soplar esas velas.</p>
+    <p class="sign">Con cariño, de quien piensa en ti 💗</p>
+  </article>
+
+  <div class="actions">
+    <button class="btn primary" id="again" type="button" hidden>Encender las velas otra vez</button>
+  </div>
+</main>
+
+<script>
+(() => {
+  const NUM_VELAS = 5;
+  const candlesEl = document.getElementById('candles');
+  const hint = document.getElementById('hint');
+  const note = document.getElementById('note');
+  const again = document.getElementById('again');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Chispitas de colores en el pastel
+  const colors = ['#e9a7b6', '#d4708f', '#c9a98a', '#fff7ee', '#b88c6e', '#f4c6d0'];
+  ['spr1', 'spr2'].forEach(id => {
+    const box = document.getElementById(id);
+    for (let i = 0; i < 18; i++) {
+      const s = document.createElement('i');
+      s.style.left = Math.random() * 96 + '%';
+      s.style.top = Math.random() * 90 + '%';
+      s.style.background = colors[i % colors.length];
+      s.style.transform = `rotate(${Math.random() * 180}deg)`;
+      box.appendChild(s);
+    }
+  });
+
+  let apagadas = 0;
+  function encender() {
+    candlesEl.innerHTML = '';
+    apagadas = 0;
+    for (let i = 0; i < NUM_VELAS; i++) {
+      const c = document.createElement('button');
+      c.className = 'candle';
+      c.type = 'button';
+      c.id = 'vela-' + i;
+      c.setAttribute('aria-label', `Apagar vela ${i + 1}`);
+      c.style.height = (15 + (i % 2) * 2.5) + 'cqw';
+      c.innerHTML = '<span class="flame"></span><span class="smoke"></span>';
+      c.addEventListener('click', () => apagar(c));
+      candlesEl.appendChild(c);
+    }
+    note.hidden = true; note.classList.remove('reveal');
+    again.hidden = true;
+    hint.textContent = 'Pide un deseo y toca cada vela para apagarla';
+  }
+
+  function apagar(c) {
+    if (c.classList.contains('out')) return;
+    c.classList.add('out');
+    c.setAttribute('aria-label', 'Vela apagada');
+    apagadas++;
+    const faltan = NUM_VELAS - apagadas;
+    if (faltan > 0) {
+      hint.textContent = faltan === 1 ? '¡Falta una!' : `¡Bien! Faltan ${faltan}`;
+    } else {
+      hint.textContent = '¡Tu deseo ya va en camino!';
+      setTimeout(() => {
+        note.hidden = false; note.classList.add('reveal');
+        again.hidden = false;
+        confetti();
+      }, 450);
+    }
+  }
+
+  // Confeti
+  const cv = document.getElementById('confetti');
+  const ctx = cv.getContext('2d');
+  let parts = [], raf = null;
+  function resize() { cv.width = innerWidth * devicePixelRatio; cv.height = innerHeight * devicePixelRatio; }
+  addEventListener('resize', resize); resize();
+  function confetti() {
+    if (reduce) return;
+    const n = 160;
+    for (let i = 0; i < n; i++) {
+      parts.push({
+        x: Math.random() * cv.width, y: -20 - Math.random() * cv.height * .4,
+        vx: (Math.random() - .5) * 4, vy: 2 + Math.random() * 4,
+        r: (4 + Math.random() * 6) * devicePixelRatio, rot: Math.random() * 6, vr: (Math.random() - .5) * .3,
+        c: colors[i % colors.length], heart: i % 7 === 0
+      });
+    }
+    if (!raf) tick();
+  }
+  function heart(x, y, s) {
+    ctx.beginPath();
+    ctx.moveTo(x, y + s * .3);
+    ctx.bezierCurveTo(x, y, x - s * .5, y, x - s * .5, y + s * .3);
+    ctx.bezierCurveTo(x - s * .5, y + s * .6, x, y + s * .8, x, y + s);
+    ctx.bezierCurveTo(x, y + s * .8, x + s * .5, y + s * .6, x + s * .5, y + s * .3);
+    ctx.bezierCurveTo(x + s * .5, y, x, y, x, y + s * .3);
+    ctx.fill();
+  }
+  function tick() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    parts.forEach(p => {
+      p.x += p.vx; p.y += p.vy * devicePixelRatio; p.rot += p.vr; p.vy += .03;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillStyle = p.heart ? '#e7849f' : p.c;
+      if (p.heart) heart(0, 0, p.r * 2.2); else ctx.fillRect(-p.r / 2, -p.r / 4, p.r, p.r / 2);
+      ctx.restore();
+    });
+    parts = parts.filter(p => p.y < cv.height + 40);
+    raf = parts.length ? requestAnimationFrame(tick) : (ctx.clearRect(0, 0, cv.width, cv.height), null);
+  }
+
+  // ---- Música ----
+  const musica = (() => {
+    const song = document.getElementById('song');
+    let usarSynth = false, playing = false;
+    let actx = null, master = null, loopTimer = null;
+    song.addEventListener('error', () => { usarSynth = true; });
+
+    // "Feliz cumpleaños" (melodía tradicional, dominio público) en tono de caja musical
+    const N = { D4: 293.66, E4: 329.63, Fs4: 369.99, G4: 392, A4: 440, B4: 493.88, C5: 523.25, D5: 587.33 };
+    const melodia = [
+      ['D4',.75],['D4',.25],['E4',1],['D4',1],['G4',1],['Fs4',2],
+      ['D4',.75],['D4',.25],['E4',1],['D4',1],['A4',1],['G4',2],
+      ['D4',.75],['D4',.25],['D5',1],['B4',1],['G4',1],['Fs4',1],['E4',2],
+      ['C5',.75],['C5',.25],['B4',1],['G4',1],['A4',1],['G4',3]
+    ];
+    const BEAT = .42;
+    function nota(f, t, dur) {
+      [1, 2, 3].forEach((h, k) => {
+        const o = actx.createOscillator(), g = actx.createGain();
+        o.type = 'sine'; o.frequency.value = f * h;
+        const vol = [.32, .1, .04][k];
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(vol, t + .01);
+        g.gain.exponentialRampToValueAtTime(.0001, t + Math.max(dur, .5) + .6);
+        o.connect(g).connect(master);
+        o.start(t); o.stop(t + Math.max(dur, .5) + .7);
+      });
+    }
+    function programar() {
+      let t = actx.currentTime + .1;
+      melodia.forEach(([n, b]) => { nota(N[n], t, b * BEAT); t += b * BEAT; });
+      const total = (t - actx.currentTime + 1.2) * 1000;
+      loopTimer = setTimeout(() => { if (playing && usarSynth) programar(); }, total);
+    }
+    function synthOn() {
+      if (!actx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        actx = new AC(); master = actx.createGain(); master.gain.value = .9; master.connect(actx.destination);
+      }
+      actx.resume();
+      if (!loopTimer) programar();
+    }
+    function synthOff() {
+      clearTimeout(loopTimer); loopTimer = null;
+      if (actx) actx.suspend();
+    }
+    const btn = document.getElementById('music');
+    const iconPause = document.getElementById('icon-pause');
+    const iconPlay = document.getElementById('icon-play');
+    function pintar() {
+      btn.hidden = false;
+      btn.classList.toggle('playing', playing);
+      iconPause.hidden = !playing; iconPlay.hidden = playing;
+      btn.setAttribute('aria-label', playing ? 'Pausar música' : 'Reproducir música');
+    }
+    function play() {
+      playing = true; pintar();
+      if (usarSynth || song.networkState === 3) { usarSynth = true; synthOn(); return; }
+      const p = song.play();
+      if (p) p.catch(() => { usarSynth = true; if (playing) synthOn(); });
+    }
+    function pause() {
+      playing = false; pintar();
+      song.pause(); synthOff();
+    }
+    btn.addEventListener('click', () => (playing ? pause() : play()));
+    return { start() { if (!playing) play(); } };
+  })();
+
+  // Pantalla de entrada: el toque permite que la música arranque sola
+  const intro = document.getElementById('intro');
+  intro.addEventListener('click', () => {
+    intro.classList.add('gone');
+    musica.start();
+    setTimeout(() => { const v = document.getElementById('vela-0'); if (v) v.focus({ preventScroll: true }); }, 650);
+  });
+
+  again.addEventListener('click', encender);
+  encender();
+})();
+</script>
+</body>
+</html>
